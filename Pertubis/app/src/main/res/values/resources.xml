@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string-array name="names_array">
+        <item>Selecione</item>
+        <item>Roberto Carlos</item>
+        <item>Marra</item>
+        <item>Rosana</item>
+        <item>Careca</item>
+        <item>Pepe</item>
+    </string-array>
+
+</resources>
