@@ -7,6 +7,9 @@ import android.view.animation.AnimationUtils
 import androidx.recyclerview.widget.RecyclerView
 import com.example.rafaelmarra.pertubis.R
 import com.example.rafaelmarra.pertubis.model.disturb.Disturb
+import com.example.rafaelmarra.pertubis.viewmodel.*
+import com.squareup.picasso.Picasso
+import kotlinx.android.synthetic.main.activity_disturb.*
 import kotlinx.android.synthetic.main.item_list_disturb.view.*
 
 class ListDisturbAdapter(var disturbList: List<Disturb>, private val listener: ListClickListener):
@@ -46,12 +49,25 @@ class ListDisturbAdapter(var disturbList: List<Disturb>, private val listener: L
             itemView.txtListaData.text = disturb.data
             itemView.txtListaHora.text = disturb.hora
 
+            val url = when (disturb.nome) {
+                "Roberto Carlos" -> ROBERTO_CARLOS
+                "Marra" -> MARRA
+                "Rosana" -> ROSANA
+                "Careca" -> CARECA
+                "Pepe" -> PEPE
+                else -> "erro"
+            }
+            Picasso.get()
+                .load(url)
+                .error(R.drawable.user)
+                .into(itemView.imgLista)
+
             itemView.setOnClickListener {
-                listener.onItemClick(adapterPosition)
+                listener.onItemClick()
             }
 
             itemView.setOnLongClickListener {
-                listener.onItemLongPress(itemView)
+                listener.onItemLongPress(itemView, disturb)
             }
         }
     }

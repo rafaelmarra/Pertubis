@@ -1,10 +1,15 @@
 package com.example.rafaelmarra.pertubis.view
 
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.content.Context
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import android.view.animation.AnimationUtils
 import androidx.appcompat.app.AppCompatActivity
 import com.example.rafaelmarra.pertubis.R
+import com.example.rafaelmarra.pertubis.viewmodel.business.CHANNEL_ID
 import kotlinx.android.synthetic.main.activity_splash.*
 import java.util.*
 
@@ -14,6 +19,7 @@ class SplashActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_splash)
 
+        createNotificationChannel()
         startAnimation()
         startTimer()
     }
@@ -30,5 +36,22 @@ class SplashActivity : AppCompatActivity() {
                 finish()
             }
         }, 5000)
+    }
+
+    private fun createNotificationChannel() {
+        // Create the NotificationChannel, but only on API 26+ because
+        // the NotificationChannel class is new and not in the support library
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val name = "Pertubis"
+            val descriptionText = "Perturbação"
+            val importance = NotificationManager.IMPORTANCE_DEFAULT
+            val channel = NotificationChannel(CHANNEL_ID, name, importance).apply {
+                description = descriptionText
+            }
+            // Register the channel with the system
+            val notificationManager: NotificationManager =
+                getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            notificationManager.createNotificationChannel(channel)
+        }
     }
 }

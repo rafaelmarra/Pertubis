@@ -1,10 +1,11 @@
 package com.example.rafaelmarra.pertubis.view.adapters
 
 import android.view.View
+import com.example.rafaelmarra.pertubis.model.disturb.Disturb
 
 interface ListClickListener {
 
-    fun onItemClick(position: Int)
+    fun onItemClick()
 
-    fun onItemLongPress(itemView: View): Boolean
+    fun onItemLongPress(itemView: View, disturb: Disturb): Boolean
 }

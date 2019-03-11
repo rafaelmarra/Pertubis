@@ -21,4 +21,11 @@ class ListaViewModel(application: Application) : AndroidViewModel(application) {
         disturbList = disturbDatabase?.disturbDao()?.getAllLiveData()!!
     }
 
+    fun deleteDisturb(disturb: Disturb) {
+        val task = Runnable {
+            disturbDatabase?.disturbDao()?.delete(disturb)
+        }
+        Thread(task).start()
+    }
+
 }

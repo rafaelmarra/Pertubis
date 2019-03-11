@@ -2,13 +2,15 @@
 <com.google.android.material.card.MaterialCardView
         xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
-        xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:cardElevation="8dp"
         android:layout_marginRight="8dp"
         android:layout_marginLeft="8dp"
         android:layout_marginTop="8dp"
-        app:cardCornerRadius="16dp" android:id="@+id/cardListaItem">
+        app:cardCornerRadius="16dp"
+        android:id="@+id/cardListaItem" app:cardBackgroundColor="@color/design_default_color_background">
 
     <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
@@ -21,11 +23,10 @@
                 app:layout_constraintStart_toStartOf="parent"
                 android:scaleType="fitCenter"
                 app:layout_constraintTop_toTopOf="parent"
-                app:srcCompat="@drawable/icon_large" android:layout_marginTop="8dp" android:layout_marginStart="8dp"
-        />
+                android:layout_marginTop="8dp"
+                android:layout_marginStart="8dp"/>
 
         <TextView
-                android:text="Careca"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:id="@+id/txtListaNome"
@@ -34,11 +35,12 @@
                 android:textSize="24sp"
                 android:textColor="@color/primary_text"
                 android:textStyle="bold"
-                app:layout_constraintStart_toEndOf="@+id/imgLista" android:layout_marginStart="8dp"
-                android:layout_marginTop="8dp" app:layout_constraintTop_toTopOf="parent"/>
+                app:layout_constraintStart_toEndOf="@+id/imgLista"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="8dp"
+                app:layout_constraintTop_toTopOf="parent"/>
 
         <TextView
-                android:text="Mandar mensagem no workplace perguntando do São Paulo"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:id="@+id/txtListaDesc"
@@ -48,14 +50,19 @@
                 android:layout_marginEnd="8dp"
                 android:layout_marginTop="16dp"
                 app:layout_constraintTop_toBottomOf="@+id/txtListaNome"
-                app:layout_constraintStart_toEndOf="@+id/imgLista" android:layout_marginStart="8dp"
-                android:layout_marginBottom="16dp" app:layout_constraintBottom_toTopOf="@+id/frameLayout"/>
+                app:layout_constraintStart_toEndOf="@+id/imgLista"
+                android:layout_marginStart="8dp"
+                android:layout_marginBottom="16dp"
+                app:layout_constraintBottom_toTopOf="@+id/frameLayout"/>
 
         <FrameLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:layout_constraintBottom_toBottomOf="parent" app:layout_constraintTop_toBottomOf="@+id/imgLista"
-                android:layout_marginTop="16dp" android:id="@+id/frameLayout" app:layout_constraintVertical_bias="1.0">
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/imgLista"
+                android:layout_marginTop="16dp"
+                android:id="@+id/frameLayout"
+                app:layout_constraintVertical_bias="1.0">
 
             <com.google.android.material.card.MaterialCardView
                     android:layout_width="match_parent"
@@ -76,7 +83,6 @@
                         android:layout_height="match_parent">
 
                     <TextView
-                            android:text="24/12/2019"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:id="@+id/txtListaData"
@@ -88,7 +94,6 @@
                             android:textSize="18sp"/>
 
                     <TextView
-                            android:text="20:30"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:id="@+id/txtListaHora"
