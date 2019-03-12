@@ -30,6 +30,7 @@
         </activity>
         <activity android:name=".view.DisturbActivity">
         </activity>
+        <receiver android:name=".viewmodel.business.NotificationReceiver" />
     </application>
 
 </manifest>

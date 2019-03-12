@@ -344,7 +344,7 @@ class DisturbViewModel(private val mApplication: Application) :
 
         val notificationIntent = Intent(mApplication, NotificationReceiver::class.java).apply {
             putExtra(NOTIFICATION_ID, 1)
-            putExtra(NOTIFICATION, getNotification(disturbed, disturb, picture))
+            putExtra(NOTIFICATION, createNotification(disturbed, disturb, picture))
         }
 
         val alarmIntent = PendingIntent.getBroadcast(
@@ -373,7 +373,7 @@ class DisturbViewModel(private val mApplication: Application) :
         alarmManager.set(AlarmManager.RTC_WAKEUP, calendar.timeInMillis, alarmIntent)
     }
 
-    private fun getNotification(disturbed: String, disturb: String, picture: Drawable?): Notification? {
+    private fun createNotification(disturbed: String, disturb: String, picture: Drawable?): Notification? {
 
         val intent = Intent(mApplication, ListaActivity::class.java)
         val pendingIntent: PendingIntent = PendingIntent.getActivity(mApplication, 0, intent, 0)
