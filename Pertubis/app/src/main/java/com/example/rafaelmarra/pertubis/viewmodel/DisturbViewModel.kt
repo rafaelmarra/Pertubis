@@ -398,6 +398,4 @@ class DisturbViewModel(private val mApplication: Application) :
 
         return builder.build()
     }
-
-
 }
