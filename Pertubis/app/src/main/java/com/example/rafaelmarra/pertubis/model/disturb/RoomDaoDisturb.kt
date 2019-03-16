@@ -8,10 +8,10 @@ import androidx.room.OnConflictStrategy.REPLACE
 interface RoomDaoDisturb {
 
     @Query("SELECT * from disturbs")
-    fun getAll(): List<Disturb>
+    fun getAll(): LiveData<List<Disturb>>
 
-    @Query("SELECT * from disturbs")
-    fun getAllLiveData(): LiveData<List<Disturb>>
+    @Query("SELECT * from disturbs WHERE id = :id")
+    fun getFromId(id: Long): LiveData<Disturb>
 
     @Update
     fun update(disturb: Disturb)

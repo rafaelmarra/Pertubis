@@ -55,6 +55,7 @@ class ListDisturbAdapter(var disturbList: List<Disturb>, private val listener: L
                 "Rosana" -> ROSANA
                 "Careca" -> CARECA
                 "Pepe" -> PEPE
+                "Ale" -> ALE
                 else -> "erro"
             }
             Picasso.get()

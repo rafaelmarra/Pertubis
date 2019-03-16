@@ -2,11 +2,9 @@ package com.example.rafaelmarra.pertubis.view
 
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
-import android.content.Context
 import android.content.DialogInterface
 import android.os.Bundle
 import android.view.View
-import android.view.inputmethod.InputMethodManager
 import android.widget.ArrayAdapter
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
@@ -15,7 +13,6 @@ import com.example.rafaelmarra.pertubis.R
 import com.example.rafaelmarra.pertubis.databinding.ActivityDisturbBinding
 import com.example.rafaelmarra.pertubis.extensions.applyTextMask
 import com.example.rafaelmarra.pertubis.extensions.hideKeyboard
-import com.example.rafaelmarra.pertubis.model.disturb.Disturb
 import com.example.rafaelmarra.pertubis.viewmodel.DisturbViewModel
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.activity_disturb.*
@@ -37,13 +34,13 @@ class DisturbActivity : AppCompatActivity() {
         setObservers()
         setNameSpinner()
 
-        if (intent.getSerializableExtra("disturb") != null){
+        if (intent.extras?.getLong("disturb") != null){
             setEditActivity()
         }
     }
 
     private fun setBinding() {
-        disturbViewModel = DisturbViewModel(application)
+        disturbViewModel = DisturbViewModel(application, intent.extras?.getLong("disturb"))
         binding = DataBindingUtil.setContentView(this, R.layout.activity_disturb)
         binding.viewModel = disturbViewModel
         binding.executePendingBindings()
@@ -64,6 +61,11 @@ class DisturbActivity : AppCompatActivity() {
                 .error(R.drawable.user)
                 .into(imgNome)
         })
+
+        binding.viewModel?.disturbToEdit?.observe(this, Observer {
+            binding.viewModel?.setEditDisturb(it)
+            setEditActivity()
+        })
     }
 
     private fun setNameSpinner() {
@@ -82,7 +84,10 @@ class DisturbActivity : AppCompatActivity() {
     }
 
     private fun setEditActivity() {
-        binding.viewModel?.setEditDisturb(intent.getSerializableExtra("disturb") as Disturb)
+
+/*
+        binding.viewModel?.grabDisturbToEdit(intentCode.extras?.getLong("disturb"))
+*/
         spinnerNames.setSelection(binding.viewModel?.nameToSet() ?: 0)
     }
 

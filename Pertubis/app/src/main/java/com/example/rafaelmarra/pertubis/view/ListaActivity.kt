@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
@@ -115,7 +116,11 @@ class ListaActivity : AppCompatActivity(), ListClickListener {
             R.id.actionEdit -> {
                 if (lastSelectedDisturb != null) {
                     val intent = Intent(this@ListaActivity, DisturbActivity::class.java)
-                    intent.putExtra("disturb", lastSelectedDisturb)
+                    val bundle = Bundle()
+
+                    bundle.putLong("disturb", lastSelectedDisturb?.id as Long)
+                    intent.putExtras(bundle)
+
                     startActivity(intent)
                     onItemClick()
                 }
@@ -128,7 +133,8 @@ class ListaActivity : AppCompatActivity(), ListClickListener {
                     if (disturbToDelete != null) {
                         MaterialAlertDialogBuilder(this)
                             .setMessage("Deseja deletar esta perturbação?")
-                            .setPositiveButton("Sim"
+                            .setPositiveButton(
+                                "Sim"
                             ) { _, _ ->
                                 binding.viewModel?.deleteDisturb(disturbToDelete)
                                 onItemClick()
@@ -174,6 +180,7 @@ class ListaActivity : AppCompatActivity(), ListClickListener {
     }
 
     fun fabClick(view: View) {
+        onItemClick()
         startActivity(Intent(this@ListaActivity, DisturbActivity::class.java))
     }
 }

@@ -13,8 +13,13 @@ import android.widget.Toast
 import androidx.core.app.NotificationCompat
 import androidx.databinding.ObservableField
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.example.rafaelmarra.pertubis.R
+import com.example.rafaelmarra.pertubis.extensions.cancelAlarm
+import com.example.rafaelmarra.pertubis.extensions.createAlarmWithCode
+import com.example.rafaelmarra.pertubis.extensions.createAlarmWithCode
+import com.example.rafaelmarra.pertubis.extensions.formatTime
 import com.example.rafaelmarra.pertubis.model.cep.Cep
 import com.example.rafaelmarra.pertubis.model.cep.CepDao
 import com.example.rafaelmarra.pertubis.model.cep.ServiceListener
@@ -22,10 +27,6 @@ import com.example.rafaelmarra.pertubis.model.disturb.Disturb
 import com.example.rafaelmarra.pertubis.model.disturb.DisturbDatabase
 import com.example.rafaelmarra.pertubis.view.ListaActivity
 import com.example.rafaelmarra.pertubis.viewmodel.business.CHANNEL_ID
-import com.example.rafaelmarra.pertubis.viewmodel.business.NOTIFICATION
-import com.example.rafaelmarra.pertubis.viewmodel.business.NOTIFICATION_ID
-import com.example.rafaelmarra.pertubis.viewmodel.business.NotificationReceiver
-import java.util.*
 
 const val ROBERTO_CARLOS =
     "https://scontent.frao1-1.fna.fbcdn.net/v/t1.0-9/51149945_124304005297850_6080370671072837632_n.jpg?_nc_cat=108&_nc_pt=1&_nc_ht=scontent.frao1-1.fna&oh=3ea1371aeb63dd402faf775074f726ff&oe=5CEA7402"
@@ -37,8 +38,10 @@ const val CARECA =
     "https://scontent.frao1-2.fna.fbcdn.net/v/t1.0-9/51033605_373994360093165_3580441865029156864_n.jpg?_nc_cat=101&_nc_pt=1&_nc_ht=scontent.frao1-2.fna&oh=c933e1e63966a5c5b8241ec99c20e88c&oe=5CE662C0"
 const val PEPE =
     "https://scontent.frao1-2.fna.fbcdn.net/v/t1.0-9/49376865_101377337617421_1283925248449708032_n.jpg?_nc_cat=101&_nc_pt=1&_nc_ht=scontent.frao1-2.fna&oh=f5e479c5a99b6d1d40187a7b93431dbe&oe=5D16DD6D"
+const val ALE =
+    "https://scontent-gru2-1.xx.fbcdn.net/v/t1.0-9/29261678_140904916738779_5851668644722900992_n.jpg?_nc_cat=105&_nc_pt=1&_nc_ht=scontent-gru2-1.xx&oh=c0d79f01ce464ed912ea5b6de0ef7227&oe=5D0237E3"
 
-class DisturbViewModel(private val mApplication: Application) :
+class DisturbViewModel(private val mApplication: Application, idToEdit: Long?) :
     AndroidViewModel(mApplication), ServiceListener, AdapterView.OnItemSelectedListener {
 
     val txtQuem = ObservableField<String>()
@@ -54,19 +57,22 @@ class DisturbViewModel(private val mApplication: Application) :
     val txtComplemento = ObservableField<String>()
     val txtButton = ObservableField<String>("Salvar")
 
-    val databaseReady: MutableLiveData<Boolean> by lazy { MutableLiveData<Boolean>() }
-    val imageUrl: MutableLiveData<String> by lazy { MutableLiveData<String>() }
+    val databaseReady: MutableLiveData<Boolean> = MutableLiveData()
+    val imageUrl: MutableLiveData<String> = MutableLiveData()
 
     private var usesAddress = false
     private var isEdit = false
-    private var disturbToEdit: Disturb? = null
 
     private val cepDao = CepDao()
 
-    private val disturbDatabase: DisturbDatabase?
+    private val alarmManager = mApplication.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+    private lateinit var intentToStore: PendingIntent
 
-    init {
-        disturbDatabase = DisturbDatabase.getInstance(mApplication)
+    private val disturbDatabase: DisturbDatabase? = DisturbDatabase.getInstance(mApplication)
+    val disturbToEdit: LiveData<Disturb>? = if (idToEdit != null) {
+        disturbDatabase?.disturbDao()?.getFromId(idToEdit)
+    } else {
+        null
     }
 
 
@@ -96,6 +102,7 @@ class DisturbViewModel(private val mApplication: Application) :
             "Rosana" -> 3
             "Careca" -> 4
             "Pepe" -> 5
+            "Ale" -> 6
             else -> 0
         }
     }
@@ -107,6 +114,7 @@ class DisturbViewModel(private val mApplication: Application) :
             3 -> ROSANA
             4 -> CARECA
             5 -> PEPE
+            6 -> ALE
             else -> "erro"
         }
         imageUrl.value = url
@@ -118,7 +126,6 @@ class DisturbViewModel(private val mApplication: Application) :
 
     fun setEditDisturb(disturb: Disturb) {
         isEdit = true
-        disturbToEdit = disturb
         txtButton.set("Editar")
 
         txtQuem.set(disturb.nome)
@@ -228,6 +235,9 @@ class DisturbViewModel(private val mApplication: Application) :
     }
 
     private fun saveFullDisturb() {
+
+        val intentCode = scheduleNotification()
+
         val disturb = Disturb(
             null,
             txtQuem.get(),
@@ -240,18 +250,22 @@ class DisturbViewModel(private val mApplication: Application) :
             txtCidade.get(),
             txtEstado.get(),
             txtNumero.get(),
-            txtComplemento.get()
+            txtComplemento.get(),
+            intentCode
         )
 
         val task = Runnable {
             disturbDatabase?.disturbDao()?.insert(disturb)
         }
         Thread(task).start()
+
         databaseReady.value = true
-        scheduleNotification(disturb.nome.toString(), disturb.como.toString(), null)
     }
 
     private fun saveNoAddressDisturb() {
+
+        val intentCode = scheduleNotification()
+
         val disturb = Disturb(
             null,
             txtQuem.get(),
@@ -264,32 +278,45 @@ class DisturbViewModel(private val mApplication: Application) :
             null,
             null,
             null,
-            null
+            null,
+            intentCode
         )
+
         val task = Runnable {
             disturbDatabase?.disturbDao()?.insert(disturb)
         }
         Thread(task).start()
+
         databaseReady.value = true
-        scheduleNotification(disturb.nome.toString(), disturb.como.toString(), null)
     }
 
     private fun editFullDisturb() {
-        disturbToEdit?.nome = txtQuem.get()
-        disturbToEdit?.como = txtComo.get()
-        disturbToEdit?.hora = txtHora.get()
-        disturbToEdit?.data = txtDia.get()
-        disturbToEdit?.cep = txtCep.get()
-        disturbToEdit?.endereco = txtEndereco.get()
-        disturbToEdit?.bairro = txtBairro.get()
-        disturbToEdit?.cidade = txtCidade.get()
-        disturbToEdit?.estado = txtEstado.get()
-        disturbToEdit?.numero = txtNumero.get()
-        disturbToEdit?.complemento = txtComplemento.get()
 
-        val disturbToUpdate = disturbToEdit as Disturb
+        val disturb = disturbToEdit?.value
+
+        val intentCode = disturb?.intentCode
+        if (intentCode != null) {
+            cancelAlarm(mApplication, intentCode)
+        }
+        val newIntentCode = scheduleNotification()
+
+        disturb?.nome = txtQuem.get()
+        disturb?.como = txtComo.get()
+        disturb?.hora = txtHora.get()
+        disturb?.data = txtDia.get()
+        disturb?.cep = txtCep.get()
+        disturb?.endereco = txtEndereco.get()
+        disturb?.bairro = txtBairro.get()
+        disturb?.cidade = txtCidade.get()
+        disturb?.estado = txtEstado.get()
+        disturb?.numero = txtNumero.get()
+        disturb?.complemento = txtComplemento.get()
+        disturb?.intentCode = newIntentCode
+
         val task = Runnable {
-            disturbDatabase?.disturbDao()?.update(disturbToUpdate)
+            if (disturb != null) {
+                disturbDatabase?.disturbDao()?.update(disturb)
+            }
         }
         Thread(task).start()
         databaseReady.value = true
@@ -297,21 +324,31 @@ class DisturbViewModel(private val mApplication: Application) :
 
     private fun editNoAddressDisturb() {
 
-        disturbToEdit?.nome = txtQuem.get()
-        disturbToEdit?.como = txtComo.get()
-        disturbToEdit?.hora = txtHora.get()
-        disturbToEdit?.data = txtDia.get()
-        disturbToEdit?.cep = null
-        disturbToEdit?.endereco = null
-        disturbToEdit?.bairro = null
-        disturbToEdit?.cidade = null
-        disturbToEdit?.estado = null
-        disturbToEdit?.numero = null
-        disturbToEdit?.complemento = null
+        val disturb = disturbToEdit?.value
 
-        val disturbToUpdate = disturbToEdit as Disturb
+        val intentCode = disturb?.intentCode
+        if (intentCode != null) {
+            cancelAlarm(mApplication, intentCode)
+        }
+        val newIntentCode = scheduleNotification()
+
+        disturb?.nome = txtQuem.get()
+        disturb?.como = txtComo.get()
+        disturb?.hora = txtHora.get()
+        disturb?.data = txtDia.get()
+        disturb?.cep = null
+        disturb?.endereco = null
+        disturb?.bairro = null
+        disturb?.cidade = null
+        disturb?.estado = null
+        disturb?.numero = null
+        disturb?.complemento = null
+        disturb?.intentCode = newIntentCode
+
         val task = Runnable {
-            disturbDatabase?.disturbDao()?.update(disturbToUpdate)
+            if (disturb != null) {
+                disturbDatabase?.disturbDao()?.update(disturb)
+            }
         }
         Thread(task).start()
         databaseReady.value = true
@@ -340,62 +377,12 @@ class DisturbViewModel(private val mApplication: Application) :
         return true
     }
 
-    private fun scheduleNotification(disturbed: String, disturb: String, picture: Drawable?) {
+    private fun scheduleNotification(): Int {
+        val timeToSet = formatTime(txtHora.get().toString(), txtDia.get().toString())
 
-        val notificationIntent = Intent(mApplication, NotificationReceiver::class.java).apply {
-            putExtra(NOTIFICATION_ID, 1)
-            putExtra(NOTIFICATION, createNotification(disturbed, disturb, picture))
-        }
-
-        val alarmIntent = PendingIntent.getBroadcast(
-            mApplication,
-            0,
-            notificationIntent,
-            PendingIntent.FLAG_UPDATE_CURRENT
-        )
-
-        val minuteToSet = txtHora.get()?.substring(3..4)?.toInt() ?: 0
-        val hourToSet = txtHora.get()?.substring(0..1)?.toInt() ?: 0
-        val dayToSet = txtDia.get()?.substring(0..1)?.toInt() ?: 0
-        val monthToSet = txtDia.get()?.substring(3..4)?.toInt() ?: 0
-        val yearToSet = txtDia.get()?.substring(6..9)?.toInt() ?: 0
-
-        val calendar: Calendar = Calendar.getInstance().apply {
-            timeInMillis = System.currentTimeMillis()
-            set(Calendar.MINUTE, minuteToSet)
-            set(Calendar.HOUR_OF_DAY, hourToSet)
-            set(Calendar.DAY_OF_MONTH, dayToSet)
-            set(Calendar.MONTH, monthToSet - 1)
-            set(Calendar.YEAR, yearToSet)
-        }
-
-        val alarmManager: AlarmManager = mApplication.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-        alarmManager.set(AlarmManager.RTC_WAKEUP, calendar.timeInMillis, alarmIntent)
-    }
-
-    private fun createNotification(disturbed: String, disturb: String, picture: Drawable?): Notification? {
-
-        val intent = Intent(mApplication, ListaActivity::class.java)
-        val pendingIntent: PendingIntent = PendingIntent.getActivity(mApplication, 0, intent, 0)
-
-        val builder = NotificationCompat.Builder(mApplication, CHANNEL_ID)
-            .setSmallIcon(R.drawable.icon_large)
-            .setContentTitle("Hora de perturbar")
-            .setContentText(
-                "Não esqueça de perturbar ${if (disturbed == "Rosana") {
-                    "a"
-                } else {
-                    "o"
-                }} $disturbed!"
-            )
-            .setStyle(
-                NotificationCompat.BigTextStyle()
-                    .bigText(disturb)
-            )
-            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-            .setContentIntent(pendingIntent)
-            .setAutoCancel(true)
-
-        return builder.build()
+        return createAlarmWithCode(mApplication,
+            txtQuem.get().toString(),
+            txtComo.get().toString(),
+            timeToSet)
     }
 }
