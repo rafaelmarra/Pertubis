@@ -1,23 +1,14 @@
 package com.example.rafaelmarra.pertubis.viewmodel
 
-import android.app.AlarmManager
 import android.app.Application
-import android.app.Notification
-import android.app.PendingIntent
-import android.content.Context
-import android.content.Intent
-import android.graphics.drawable.Drawable
 import android.view.View
 import android.widget.AdapterView
 import android.widget.Toast
-import androidx.core.app.NotificationCompat
 import androidx.databinding.ObservableField
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import com.example.rafaelmarra.pertubis.R
 import com.example.rafaelmarra.pertubis.extensions.cancelAlarm
-import com.example.rafaelmarra.pertubis.extensions.createAlarmWithCode
 import com.example.rafaelmarra.pertubis.extensions.createAlarmWithCode
 import com.example.rafaelmarra.pertubis.extensions.formatTime
 import com.example.rafaelmarra.pertubis.model.cep.Cep
@@ -25,8 +16,6 @@ import com.example.rafaelmarra.pertubis.model.cep.CepDao
 import com.example.rafaelmarra.pertubis.model.cep.ServiceListener
 import com.example.rafaelmarra.pertubis.model.disturb.Disturb
 import com.example.rafaelmarra.pertubis.model.disturb.DisturbDatabase
-import com.example.rafaelmarra.pertubis.view.ListaActivity
-import com.example.rafaelmarra.pertubis.viewmodel.business.CHANNEL_ID
 
 const val ROBERTO_CARLOS =
     "https://scontent.frao1-1.fna.fbcdn.net/v/t1.0-9/51149945_124304005297850_6080370671072837632_n.jpg?_nc_cat=108&_nc_pt=1&_nc_ht=scontent.frao1-1.fna&oh=3ea1371aeb63dd402faf775074f726ff&oe=5CEA7402"
@@ -64,9 +53,6 @@ class DisturbViewModel(private val mApplication: Application, idToEdit: Long?) :
     private var isEdit = false
 
     private val cepDao = CepDao()
-
-    private val alarmManager = mApplication.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-    private lateinit var intentToStore: PendingIntent
 
     private val disturbDatabase: DisturbDatabase? = DisturbDatabase.getInstance(mApplication)
     val disturbToEdit: LiveData<Disturb>? = if (idToEdit != null) {
