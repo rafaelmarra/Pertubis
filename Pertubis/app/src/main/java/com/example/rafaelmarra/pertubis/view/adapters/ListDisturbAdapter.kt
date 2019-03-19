@@ -9,7 +9,6 @@ import com.example.rafaelmarra.pertubis.R
 import com.example.rafaelmarra.pertubis.model.disturb.Disturb
 import com.example.rafaelmarra.pertubis.viewmodel.*
 import com.squareup.picasso.Picasso
-import kotlinx.android.synthetic.main.activity_disturb.*
 import kotlinx.android.synthetic.main.item_list_disturb.view.*
 
 class ListDisturbAdapter(var disturbList: List<Disturb>, private val listener: ListClickListener):

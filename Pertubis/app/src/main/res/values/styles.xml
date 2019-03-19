@@ -4,6 +4,8 @@
         <item name="colorPrimary">@color/primary</item>
         <item name="colorPrimaryDark">@color/primary_dark</item>
         <item name="colorAccent">@color/accent</item>
+        <item name="android:actionOverflowButtonStyle">@style/AppTheme.OverFlow</item>
+
     </style>
     <style name="AppTheme.NoActionBar">
         <item name="windowActionBar">false</item>
@@ -11,5 +13,9 @@
     </style>
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.MaterialComponents.Dark.ActionBar"/>
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.MaterialComponents.Light"/>
+    <style name="AppTheme.OverFlow">
+        <item name="android:src">@drawable/ic_more_vert_white_24dp</item>
+
+    </style>
 
 </resources>

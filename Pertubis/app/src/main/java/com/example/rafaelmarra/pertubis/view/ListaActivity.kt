@@ -1,13 +1,10 @@
 package com.example.rafaelmarra.pertubis.view
 
-import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
-import android.widget.Toast
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
@@ -60,7 +57,10 @@ class ListaActivity : AppCompatActivity(), ListClickListener {
 
     private fun setObservers() {
         listaViewModel.disturbList.observe(this, Observer {
-            adapter.update(it)
+            val clearList = binding.viewModel?.getClearList(it)
+            if (clearList != null) {
+                adapter.update(clearList)
+            }
         })
     }
 
@@ -76,12 +76,6 @@ class ListaActivity : AppCompatActivity(), ListClickListener {
 
 
     //View
-
-    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        menuInflater.inflate(R.menu.menu_lista_vazia, menu)
-
-        return super.onCreateOptionsMenu(menu)
-    }
 
     override fun onPrepareOptionsMenu(menu: Menu?): Boolean {
 
@@ -112,6 +106,11 @@ class ListaActivity : AppCompatActivity(), ListClickListener {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
 
         return when (item.itemId) {
+
+            R.id.actionSettings -> {
+                startActivity(Intent(this@ListaActivity, SettingsActivity::class.java))
+                true
+            }
 
             R.id.actionEdit -> {
                 if (lastSelectedDisturb != null) {

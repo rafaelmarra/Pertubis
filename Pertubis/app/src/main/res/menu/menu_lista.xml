@@ -3,6 +3,11 @@
       xmlns:tools="http://schemas.android.com/tools"
       tools:context="com.example.rafaelmarra.pertubis.view.ListaActivity">
 
+    <item android:id="@+id/actionSettings"
+          android:title="Configurações"
+          android:orderInCategory="0"
+          app:showAsAction="never"/>
+
     <item android:id="@+id/actionEdit"
           android:title="Edit"
           android:orderInCategory="100"
